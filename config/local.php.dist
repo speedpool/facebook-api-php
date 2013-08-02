@@ -1,0 +1,10 @@
+<?php
+
+return array(
+  'client' => array(
+    'appId' => '',
+    'secret' => '',
+  ),
+  'accessToken' => '',
+  'facebookId' => '',
+);
