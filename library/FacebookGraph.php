@@ -106,7 +106,7 @@ class FacebookGraph
         if ($this->isCached(self::CACHE_STREAM_FILENAME, self::CACHE_STREAM_AGE)) {
             $json = $this->getCached(self::CACHE_STREAM_FILENAME);
         } else {
-            $query = "SELECT post_id, permalink, created_time, message, comments, likes, is_hidden, is_published FROM stream WHERE source_id = {$this->id} AND message != '' AND filter_key = 'owner' LIMIT {$limit}";
+            $query = "SELECT post_id, permalink, created_time, message, comments, attachment, likes, is_hidden, is_published FROM stream WHERE source_id = {$this->id} AND message != '' AND filter_key = 'owner' LIMIT {$limit}";
             $json = $this->request('fql', $query);
 
             $this->cache(self::CACHE_STREAM_FILENAME, $json);
