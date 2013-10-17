@@ -2,19 +2,19 @@
 
 class FacebookGraph
 {
-    const CACHE_USER_FILENAME = 'user.json';
+    const CACHE_USER_FILENAME = 'user';
 
     const CACHE_USER_AGE = 600;
 
-    const CACHE_FEED_FILENAME = 'feed.json';
+    const CACHE_FEED_FILENAME = 'feed';
 
     const CACHE_FEED_AGE = 600;
 
-    const CACHE_POSTS_FILENAME = 'posts.json';
+    const CACHE_POSTS_FILENAME = 'posts';
 
     const CACHE_POSTS_AGE = 600;
 
-    const CACHE_STREAM_FILENAME = 'stream.json';
+    const CACHE_STREAM_FILENAME = 'stream';
 
     const CACHE_STREAM_AGE = 600;
 
@@ -34,13 +34,15 @@ class FacebookGraph
 
     public function getUser()
     {
-        if ($this->isCached(self::CACHE_USER_FILENAME, self::CACHE_USER_AGE)) {
-            $json = $this->getCached(self::CACHE_USER_FILENAME);
+        $cacheFilename = md5(self::CACHE_USER_FILENAME) . '.json';
+
+        if ($this->isCached($cacheFilename, self::CACHE_USER_AGE)) {
+            $json = $this->getCached($cacheFilename);
         } else {
             $params = array();
             $json = $this->request('', $params);
 
-            $this->cache(self::CACHE_USER_FILENAME, $json);
+            $this->cache($cacheFilename, $json);
         }
 
         return $json;
@@ -51,7 +53,8 @@ class FacebookGraph
         $prefix = preg_replace('/[^a-z0-9]/', '-', strtolower($name)) . '-';
         $prefix .= $limit . '-';
 
-        $cacheFilename = trim($prefix . self::CACHE_FEED_FILENAME, '-');
+        $cacheFilename = md5(trim($prefix . self::CACHE_FEED_FILENAME, '-'))
+            . '.json';
 
         if ($this->isCached($cacheFilename, self::CACHE_FEED_AGE)) {
             $json = $this->getCached($cacheFilename);
@@ -78,7 +81,8 @@ class FacebookGraph
         $prefix = preg_replace('/[^a-z0-9]/', '-', strtolower($name)) . '-';
         $prefix .= $limit . '-';
 
-        $cacheFilename = trim($prefix . self::CACHE_POSTS_FILENAME, '-');
+        $cacheFilename = md5(trim($prefix . self::CACHE_POSTS_FILENAME, '-'))
+            . '.json';
 
         if ($this->isCached($cacheFilename, self::CACHE_POSTS_AGE)) {
             $json = $this->getCached($cacheFilename);
@@ -101,15 +105,25 @@ class FacebookGraph
         return $json;
     }
 
-    public function getStream($limit = 10)
+    public function getStream($limit = 10, $id = null)
     {
-        if ($this->isCached(self::CACHE_STREAM_FILENAME, self::CACHE_STREAM_AGE)) {
-            $json = $this->getCached(self::CACHE_STREAM_FILENAME);
+        $prefix = preg_replace('/[^a-z0-9]/', '-', $id) . '-';
+        $prefix .=  $limit . '-';
+
+        $cacheFilename = md5(trim($prefix . self::CACHE_STREAM_FILENAME, '-'))
+            . '.json';
+
+        if (null === $id) {
+            $id = $this->id;
+        }
+
+        if ($this->isCached($cacheFilename, self::CACHE_STREAM_AGE)) {
+            $json = $this->getCached($cacheFilename);
         } else {
-            $query = "SELECT post_id, permalink, created_time, message, comments, attachment, likes, is_hidden, is_published FROM stream WHERE source_id = {$this->id} AND message != '' AND filter_key = 'owner' LIMIT {$limit}";
+            $query = "SELECT post_id, permalink, created_time, message, comments, attachment, likes, is_hidden, is_published FROM stream WHERE source_id = {$id} AND message != '' AND filter_key = 'owner' LIMIT {$limit}";
             $json = $this->request('fql', $query);
 
-            $this->cache(self::CACHE_STREAM_FILENAME, $json);
+            $this->cache($cacheFilename, $json);
         }
 
         return $json;

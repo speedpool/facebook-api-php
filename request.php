@@ -22,9 +22,15 @@ if (array_key_exists('count', $_GET)) {
 }
 
 if (array_key_exists('name', $_GET)) {
-    $name = (string) $_GET['name'];
+    $name = $_GET['name'];
 } else {
     $name = '';
+}
+
+if (array_key_exists('id', $_GET)) {
+    $id = $_GET['id'];
+} else {
+    $id = null;
 }
 
 if (array_key_exists('cache', $_GET)) {
@@ -39,7 +45,7 @@ switch ($type) {
         $json = $graph->getPosts($count, $name);
         break;
     case 'stream':
-        $json = $graph->getStream();
+        $json = $graph->getStream($count, $id);
         break;
     case 'user':
     default:
